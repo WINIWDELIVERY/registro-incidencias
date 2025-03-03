@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Incidencias</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🚛 Registro de Incidencias</h1>
+
+        <div class="form-group">
+            <label>Matrícula del vehículo</label>
+            <input type="text" id="matricula" placeholder="Ej: ABC-1234">
+        </div>
+
+        <h2>📸 Subir imágenes del vehículo</h2>
+        <div class="image-upload-group">
+            <label>Imagen de la incidencia</label>
+            <input type="file" id="incidenciaImg" accept="image/*">
+            <img id="previewIncidencia" src="#" alt="Previsualización" style="display:none;">
+        </div>
+        <div class="image-upload-group">
+            <label>Frontal</label>
+            <input type="file" id="frontalImg" accept="image/*">
+            <img id="previewFrontal" src="#" alt="Previsualización" style="display:none;">
+        </div>
+        <div class="image-upload-group">
+            <label>Lateral Derecho</label>
+            <input type="file" id="derechoImg" accept="image/*">
+            <img id="previewDerecho" src="#" alt="Previsualización" style="display:none;">
+        </div>
+        <div class="image-upload-group">
+            <label>Trasero</label>
+            <input type="file" id="traseroImg" accept="image/*">
+            <img id="previewTrasero" src="#" alt="Previsualización" style="display:none;">
+        </div>
+        <div class="image-upload-group">
+            <label>Lateral Izquierdo</label>
+            <input type="file" id="izquierdoImg" accept="image/*">
+            <img id="previewIzquierdo" src="#" alt="Previsualización" style="display:none;">
+        </div>
+
+        <h2>🛠 Estado del Vehículo</h2>
+        <div class="form-group">
+            <label>Mecánica</label>
+            <select id="mecanica">
+                <option value="Motor">Motor</option>
+                <option value="Batería">Batería</option>
+                <option value="Frenos">Frenos</option>
+                <option value="Suspensión">Suspensión</option>
+            </select>
+            <select id="estadoMecanica">
+                <option value="Bien">Bien</option>
+                <option value="Regular">Regular</option>
+                <option value="Necesita reparación">Necesita reparación</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Carrocería</label>
+            <input type="text" id="detalleCarroceria" placeholder="Ej: Golpe en la puerta trasera">
+        </div>
+        <div class="form-group">
+            <label>Neumáticos</label>
+            <select id="neumaticos">
+                <option value="Delanteros">Delanteros</option>
+                <option value="Traseros">Traseros</option>
+                <option value="Todos">Todos</option>
+            </select>
+            <select id="estadoNeumaticos">
+                <option value="Bien">Bien</option>
+                <option value="Gastados">Gastados</option>
+                <option value="Necesitan cambio">Necesitan cambio</option>
+            </select>
+        </div>
+
+        <button class="btn" onclick="guardarIncidencia()">📤 Guardar Incidencia</button>
+    </div>
+
+    <script>
+        const apiKey = "e67724d3d060c9730ed338bd250a6f3a";
+
+        async function uploadImageToImgBB(inputElement, previewElement) {
+            const file = inputElement.files[0];
+            if (!file) return null;
+
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+                const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    previewElement.src = data.data.url;
+                    previewElement.style.display = "block";
+                    return data.data.url;
+                } else {
+                    console.error("Error al subir imagen:", data.error);
+                    return null;
+                }
+            } catch (error) {
+                console.error("Error en la conexión con ImgBB:", error);
+                return null;
+            }
+        }
+
+        document.getElementById("incidenciaImg").addEventListener("change", async function() {
+            await uploadImageToImgBB(this, document.getElementById("previewIncidencia"));
+        });
+
+        document.getElementById("frontalImg").addEventListener("change", async function() {
+            await uploadImageToImgBB(this, document.getElementById("previewFrontal"));
+        });
+
+        document.getElementById("derechoImg").addEventListener("change", async function() {
+            await uploadImageToImgBB(this, document.getElementById("previewDerecho"));
+        });
+
+        document.getElementById("traseroImg").addEventListener("change", async function() {
+            await uploadImageToImgBB(this, document.getElementById("previewTrasero"));
+        });
+
+        document.getElementById("izquierdoImg").addEventListener("change", async function() {
+            await uploadImageToImgBB(this, document.getElementById("previewIzquierdo"));
+        });
+
+        function guardarIncidencia() {
+            const matricula = document.getElementById("matricula").value;
+            const mecanica = document.getElementById("mecanica").value;
+            const estadoMecanica = document.getElementById("estadoMecanica").value;
+            const detalleCarroceria = document.getElementById("detalleCarroceria").value;
+            const neumaticos = document.getElementById("neumaticos").value;
+            const estadoNeumaticos = document.getElementById("estadoNeumaticos").value;
+
+            const datosIncidencia = {
+                matricula,
+                mecanica,
+                estadoMecanica,
+                detalleCarroceria,
+                neumaticos,
+                estadoNeumaticos
+            };
+
+            console.log("Datos guardados:", datosIncidencia);
+            alert("Incidencia guardada con éxito.");
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            max-width: 500px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        .btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        img {
+            max-width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</body>
+</html>
